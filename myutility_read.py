@@ -35,7 +35,7 @@ def get_company_from_hash(hash_key):
     for index, row in all_companies.iterrows():
         #print(f'{row["title"]=} {get_hash(row["title"])=}')
         if hash_key == get_hash(row['title']):
-            return row['id']
+            return (row['title'], row['id'])
     return None
 
 @st.cache_data(ttl=3600)  # Cache data for 1 hour (=3600 seconds)

@@ -46,36 +46,49 @@ def dataframe_with_selections(df):
     return selections
 # get the hash key from the URL this app was called with
 company_key = st.query_params.key
-st.write(f'{company_key=}')
-# get_hash('PaulsonTest5') = 04161345ee254a9badc06ec81045cc5ab7f61d0bcff0592b8d855f2845a6477f
-company_id = myutility_read.get_company_from_hash(company_key)
-if company_id is not None:
-    st.write(f'{company_id=}')
-    st.title("Reports Page")
-    st.write("Welcome to the Reports Page!")
+if company_key == st.secrets.admin:
+    #all_companies = myutility.get_all_pages(myutility.get_companies)
+    all_companies = myutility_read.do_get_companies()
+    all_companies.to_csv('all_companies.csv', index=False)
+    all_companies = all_companies[all_companies['title'].str.len() > 0]
 
-    #after the comnpany id is chosen, then get all the users from the company and show them them
-    users_df = myutility_read.do_get_users_by_company(company_id)
-    users_df = myutility_read.add_lesson_data_to_users(users_df)
+    # Create a select box with the titles, putting default value first
+    titles_list = all_companies['title'].tolist()
+    DEFAULT = '<choose company>'
+    titles_list.insert(0, DEFAULT)
+    selected_title = st.selectbox('Choose a company:', titles_list)
 
-    #following displays the users in a dataframe and allows the user to select one
-    selections = dataframe_with_selections(users_df)
-    for selection in selections.iterrows():
-        #user_id = selection.iloc[0]['user_id']
-        print(f'{type(selection)=}')
-        print(f'{selection=}')
-        user_id = selection[1]['user_id']
-        user_name = selection[1]['first_name'] + ' ' + selection[1]['last_name']
-        st.write(f'{user_name=}, {user_id=}')
-        user_lessons = myutility_read.do_get_enrollments_by_user(user_id)
-        mycourses, mylessons = myutility_read.split_into_courses_lessons(user_lessons)
-        if user_lessons.empty:
-            st.write(f'User {user_name} has no enrollments')
-        else:
-            mycourses = mycourses[['code', 'status', 'complete_percent', 'score', 'name']]
-            mylessons = mylessons[['code', 'status', 'course_complete_date', 'score', 'name']]
-            st.write(f'Your courses are:')
-            st.dataframe(mycourses, hide_index=True)
-            st.write(f'Your lessons are:')
-            st.dataframe(mylessons, hide_index=True)
+    if selected_title == DEFAULT:
+        st.write("Please select a company")
+    else:
+        # get the hash for the selected company
+        hash = myutility_read.get_hash(selected_title)
+        st.write(f'The link to the reports page for {selected_title} is:')
+        st.write(f'https://paultoolexternal.streamlit.app/?key={hash}')
+else:
+    # get_hash('PaulsonTest5') = 04161345ee254a9badc06ec81045cc5ab7f61d0bcff0592b8d855f2845a6477f
+    company_name, company_id = myutility_read.get_company_from_hash(company_key)
+    if company_id is not None:
+        st.title(f"{company_name}")
 
+        #after the comnpany id is chosen, then get all the users from the company and show them them
+        users_df = myutility_read.do_get_users_by_company(company_id)
+        users_df = myutility_read.add_lesson_data_to_users(users_df)
+
+        #following displays the users in a dataframe and allows the user to select one
+        selections = dataframe_with_selections(users_df)
+        for selection in selections.iterrows():
+            user_id = selection[1]['user_id']
+            user_name = selection[1]['first_name'] + ' ' + selection[1]['last_name']
+            st.write(f'{user_name}')
+            user_lessons = myutility_read.do_get_enrollments_by_user(user_id)
+            mycourses, mylessons = myutility_read.split_into_courses_lessons(user_lessons)
+            if user_lessons.empty:
+                st.write(f'User {user_name} has no enrollments')
+            else:
+                mycourses = mycourses[['code', 'status', 'complete_percent', 'score', 'name']]
+                mylessons = mylessons[['code', 'status', 'course_complete_date', 'score', 'name']]
+                st.write(f'Your courses are:')
+                st.dataframe(mycourses, hide_index=True)
+                st.write(f'Your lessons are:')
+                st.dataframe(mylessons, hide_index=True)

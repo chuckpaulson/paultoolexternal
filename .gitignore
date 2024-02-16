@@ -1,0 +1,8 @@
+__pycache__/
+*.csv
+*.json
+.streamlit/
+lib/streamlit/static
+streamlit-storage
+.vscode/
+github_token
