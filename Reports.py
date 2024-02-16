@@ -2,10 +2,6 @@ import myutility_read
 import pandas as pd
 import streamlit as st
 
-# token = myutility.get_token()
-# print("token = ", token)
-# token =  '87392c2c4d819766bf912179f1c288eba30f1fc1'
-
 # Set the page configuration
 st.set_page_config(
     page_title="ChuckTool",
@@ -47,9 +43,8 @@ def dataframe_with_selections(df):
 # get the hash key from the URL this app was called with
 company_key = st.query_params.key
 if company_key == st.secrets.admin:
-    #all_companies = myutility.get_all_pages(myutility.get_companies)
     all_companies = myutility_read.do_get_companies()
-    all_companies.to_csv('all_companies.csv', index=False)
+    # all_companies.to_csv('all_companies.csv', index=False)
     all_companies = all_companies[all_companies['title'].str.len() > 0]
 
     # Create a select box with the titles, putting default value first

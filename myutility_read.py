@@ -7,7 +7,7 @@ import hashlib
 
 @st.cache_data(ttl=3600)  # Cache data for 1 hour (=3600 seconds), also have @st.cache_data(show_spinner="Fetching data from API...")
 def get_token():
-    base_url = "https://paulsontraining.docebosaas.com/oauth2/token"
+    base_url = st.secrets.base_url + "/oauth2/token"
     data = {
         "client_id": "clientid1",
         "client_secret": st.secrets.client_secret,
@@ -95,7 +95,7 @@ def do_get_enrollments_by_user(user_id):
     get_user_lessons['page'] = 1
     #make sure to return empty dataframe if no lessons
     lessons = get_all_pages(get_user_lessons)
-    lessons.to_csv('columns_all.csv', index=False)
+    #lessons.to_csv('columns_all.csv', index=False)
     return lessons
 
 def calc_user_data_from_lessons(row):
@@ -142,7 +142,7 @@ def get_all_pages(mydict):
         # Move to the next page
         mydict_copy['page'] += 1
     # Save the data to a CSV file
-    mydict_data.to_csv(mydict['name'] + '.csv', index=False)
+    #mydict_data.to_csv(mydict['name'] + '.csv', index=False)
     return mydict_data
 
 def get_df(mydict, json_data):
@@ -162,7 +162,7 @@ def get_df(mydict, json_data):
     return df
 
 def docebo_api_get(mydict, token):
-    base_url = 'https://paulsontraining.docebosaas.com'
+    base_url = st.secrets.base_url
     headers = {
         "Authorization": "Bearer " + token,
         "Content-Type": "application/json",
@@ -171,8 +171,8 @@ def docebo_api_get(mydict, token):
     response = requests.get(full_url, headers=headers)
     if response.status_code == 200:
         result = response.json()
-        with open("result.json", "w") as f:
-           json.dump(result, f)
+        # with open("result.json", "w") as f:
+        #     json.dump(result, f)
         return result
     else:
         return None
