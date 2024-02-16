@@ -75,7 +75,7 @@ else:
         for selection in selections.iterrows():
             user_id = selection[1]['user_id']
             user_name = selection[1]['first_name'] + ' ' + selection[1]['last_name']
-            st.write(f'{user_name}')
+            st.subheader(f'{user_name}')
             user_lessons = myutility_read.do_get_enrollments_by_user(user_id)
             mycourses, mylessons = myutility_read.split_into_courses_lessons(user_lessons)
             if user_lessons.empty:
