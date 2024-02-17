@@ -41,6 +41,10 @@ def dataframe_with_selections(df):
     # return the selected rows
     return selections
 # get the hash key from the URL this app was called with
+if 'key' not in st.query_params:
+    st.error('''The URL must have a key parameter like this:,  
+             https://paultoolexternal.streamlit.app/?key=<your key>''')
+    st.stop()
 company_key = st.query_params.key
 if company_key == st.secrets.admin:
     all_companies = myutility_read.do_get_companies()
@@ -63,7 +67,11 @@ if company_key == st.secrets.admin:
 else:
     # get_hash('PaulsonTest5') = 04161345ee254a9badc06ec81045cc5ab7f61d0bcff0592b8d855f2845a6477f
     company_name, company_id = myutility_read.get_company_from_hash(company_key)
-    if company_id is not None:
+    if company_id is None:
+        st.error(f'''The key={company_key} is not a valid key.  
+                 Please check the URL and try a different key.''')
+        st.stop()
+    else:
         st.title(f"{company_name}")
 
         #after the comnpany id is chosen, then get all the users from the company and show them them
